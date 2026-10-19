@@ -512,9 +512,7 @@ function replaceTimelineIdentityItem(
   const index = findExistingTimelineIdentityIndex(items, identity);
   const existing = items[index];
   if (index < 0 || !existing || existing.kind !== "plugin") return null;
-  const next = [...items];
-  next[index] = retained;
-  return next;
+  return moveTimelineIdentityItemTo(items, index, retained);
 }
 
 function reconcileReplacementHeadAgainstTail(
@@ -812,6 +810,7 @@ export interface PluginTimelineStreamItem {
   itemKind: string;
   version: number;
   data: JsonValue;
+  placement?: "in-place" | "tail";
 }
 
 export interface TodoEntry {
@@ -1269,14 +1268,28 @@ function appendPluginTimelineItem(
     version: item.version,
     data: item.data,
     timestamp,
+    ...(item.placement ? { placement: item.placement } : {}),
     ...(timelineCursor ? { timelineCursor } : {}),
   };
   const existingIndex = findExistingTimelineIdentityIndex(state, identity);
   if (existingIndex < 0) return [...state, nextItem];
   const existing = state[existingIndex];
   if (!existing || existing.kind !== "plugin") return state;
+  return moveTimelineIdentityItemTo(state, existingIndex, { ...nextItem, id: existing.id });
+}
+
+/** Update an identity-matched plugin item; "tail" placement re-anchors it as the last row (SC-2758). */
+function moveTimelineIdentityItemTo(
+  state: StreamItem[],
+  existingIndex: number,
+  merged: PluginTimelineStreamItem,
+): StreamItem[] {
   const next = [...state];
-  next[existingIndex] = { ...nextItem, id: existing.id };
+  next[existingIndex] = merged;
+  if (merged.placement === "tail" && existingIndex !== next.length - 1) {
+    next.splice(existingIndex, 1);
+    next.push(merged);
+  }
   return next;
 }
 

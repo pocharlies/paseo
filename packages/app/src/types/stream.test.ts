@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import invariant from "tiny-invariant";
 import { describe, expect, it } from "vitest";
 
+import type { JsonValue } from "@getpaseo/protocol/agent-types";
+
 import {
   applyStreamEvent,
   createUserMessage,
@@ -154,6 +156,39 @@ describe("plugin timeline rows", () => {
       pluginItemId: "review-1",
       data: { status: "complete" },
     });
+  });
+
+  const pluginEvent = (id: string, data: JsonValue, placement?: "in-place" | "tail") => ({
+    type: "timeline" as const,
+    provider: "codex" as const,
+    item: {
+      type: "plugin" as const,
+      id,
+      pluginId: "plan-plugin",
+      kind: "plan-progress",
+      version: 1,
+      data,
+      ...(placement ? { placement } : {}),
+    },
+  });
+
+  it("re-anchors a tail-placement row to the end when its identity repeats", () => {
+    let state = reduceStreamUpdate([], pluginEvent("plan", { n: 1 }, "tail"), new Date(1));
+    state = reduceStreamUpdate(state, pluginEvent("card", { n: 0 }), new Date(2));
+    state = reduceStreamUpdate(state, pluginEvent("plan", { n: 2 }, "tail"), new Date(3));
+
+    expect(state).toHaveLength(2);
+    expect(state.map((s) => s.kind === "plugin" && s.pluginItemId)).toEqual(["card", "plan"]);
+    expect(state[1]).toMatchObject({ id: "plan-plugin/plan", data: { n: 2 } });
+  });
+
+  it("keeps an in-place row where it was first inserted (default placement)", () => {
+    let state = reduceStreamUpdate([], pluginEvent("plan", { n: 1 }), new Date(1));
+    state = reduceStreamUpdate(state, pluginEvent("card", { n: 0 }), new Date(2));
+    state = reduceStreamUpdate(state, pluginEvent("plan", { n: 2 }), new Date(3));
+
+    expect(state.map((s) => s.kind === "plugin" && s.pluginItemId)).toEqual(["plan", "card"]);
+    expect(state[0]).toMatchObject({ data: { n: 2 } });
   });
 });
 

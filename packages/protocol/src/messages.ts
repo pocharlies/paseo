@@ -715,6 +715,7 @@ export const AgentTimelineItemPayloadSchema: z.ZodType<AgentTimelineItem, unknow
     kind: z.string(),
     version: z.number(),
     data: JsonWireValueSchema,
+    placement: z.enum(["in-place", "tail"]).optional(),
   }),
 ]);
 
@@ -1560,6 +1561,7 @@ export const AgentTimelineAppendRequestSchema = z.object({
     kind: z.string(),
     version: z.number().int().positive(),
     data: JsonWireValueSchema,
+    placement: z.enum(["in-place", "tail"]).optional(),
   }),
 });
 
