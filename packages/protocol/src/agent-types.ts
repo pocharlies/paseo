@@ -362,6 +362,9 @@ export interface PluginTimelineItem {
   kind: string;
   version: number;
   data: JsonValue;
+  /** "tail": re-appending this id moves the item to the end of the timeline (a live panel, like the plan);
+   * default "in-place" updates it where it was first inserted. */
+  placement?: "in-place" | "tail";
 }
 
 export interface AgentTaskItem {

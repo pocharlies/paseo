@@ -77,6 +77,39 @@ describe("plugin protocol compatibility", () => {
     ).toMatchObject({ features: { pluginTimelineItems: true } });
   });
 
+  it("accepts a tail placement on an append and rejects an unknown one", () => {
+    expect(
+      SessionInboundMessageSchema.parse({
+        type: "agent.timeline.append.request",
+        requestId: "append-1",
+        agentId: "agent-1",
+        item: {
+          type: "plugin",
+          id: "plan",
+          kind: "plan-progress",
+          version: 1,
+          data: {},
+          placement: "tail",
+        },
+      }).item,
+    ).toMatchObject({ placement: "tail" });
+    expect(() =>
+      SessionInboundMessageSchema.parse({
+        type: "agent.timeline.append.request",
+        requestId: "append-1",
+        agentId: "agent-1",
+        item: {
+          type: "plugin",
+          id: "plan",
+          kind: "plan-progress",
+          version: 1,
+          data: {},
+          placement: "bottom",
+        },
+      }),
+    ).toThrow();
+  });
+
   it.each([0, -1, 1.5])("rejects plugin timeline version %s", (version) => {
     expect(() =>
       SessionInboundMessageSchema.parse({
