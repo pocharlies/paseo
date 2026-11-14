@@ -65,7 +65,7 @@ import { PaneSubtitle } from "@/panels/pane-subtitle";
 import { useProvidersSnapshot } from "@/hooks/use-providers-snapshot";
 import { definePanel, type PanelDescriptor } from "@/panels/panel-registry";
 import { RenderProfile } from "@/utils/render-profiler";
-import { useHasPluginComposerPills } from "@/plugins";
+import { useHasPluginComposerPills, usePluginReplacesTasks } from "@/plugins";
 import { buildDraftPanelDescriptor } from "@/panels/draft-panel-descriptor";
 import {
   type HostRuntimeConnectionStatus,
@@ -1176,6 +1176,7 @@ const ChatAgentReadyContent = memo(function ChatAgentReadyContent({
     rows: subagentRows,
   });
   const hasPluginComposerPills = useHasPluginComposerPills(serverId, workspaceId, agentId);
+  const replacesTasks = usePluginReplacesTasks(serverId, workspaceId, agentId);
   const hasActiveComposer = !agentState.archivedAt && !isArchivingCurrentAgent;
   const hasVisibleAgentTracks = hasAgentTracks({
     subagentRows,
@@ -1277,6 +1278,7 @@ const ChatAgentReadyContent = memo(function ChatAgentReadyContent({
           archiveFinishedStatus={archiveFinishedSubagents.status}
           onArchiveFinished={archiveFinishedSubagents.archiveFinished}
           hasPluginComposerPills={hasPluginComposerPills}
+          replacesTasks={replacesTasks}
         />
       ) : null}
     </View>

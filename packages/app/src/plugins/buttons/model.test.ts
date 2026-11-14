@@ -2,7 +2,7 @@ import { QueryClient } from "@tanstack/react-query";
 import { describe, expect, it } from "vitest";
 import type { PluginButton } from "@getpaseo/plugin/client";
 import type { InstalledPlugin } from "../types";
-import { PluginButtonStore, buttonMatches } from "./model";
+import { PluginButtonStore, buttonMatches, replacesTasks } from "./model";
 
 function installation(): InstalledPlugin {
   return {
@@ -169,5 +169,57 @@ describe("plugin buttons", () => {
     });
     await buttons.run(key, ["nested", "run"]);
     expect(calls).toBe(2);
+  });
+});
+
+describe("composer pill task replacement", () => {
+  it("hides native Tasks only for a visible, enabled pill on the matching agent", () => {
+    const buttons = store();
+    const pill = buttons.addComposerPill(installation(), {
+      id: "plan",
+      workspaceId: "workspace",
+      agentId: "agent",
+      replaces: "tasks",
+      button: button(),
+    });
+    const entries = () => buttons.getSnapshot();
+    expect(replacesTasks(entries(), "host-a", "workspace", "agent")).toBe(true);
+    expect(replacesTasks(entries(), "host-a", "workspace", "other-agent")).toBe(false);
+    expect(replacesTasks(entries(), "host-a", "other-workspace", "agent")).toBe(false);
+    expect(replacesTasks(entries(), "host-b", "workspace", "agent")).toBe(false);
+
+    // Disabling, hiding or removing the pill restores Tasks — the fallback the criteria require.
+    pill.update({ disabled: true });
+    expect(replacesTasks(entries(), "host-a", "workspace", "agent")).toBe(false);
+    pill.update({ disabled: false, visible: false });
+    expect(replacesTasks(entries(), "host-a", "workspace", "agent")).toBe(false);
+    pill.update({ visible: true });
+    expect(replacesTasks(entries(), "host-a", "workspace", "agent")).toBe(true);
+    pill.remove();
+    expect(replacesTasks(entries(), "host-a", "workspace", "agent")).toBe(false);
+  });
+
+  it("leaves Tasks in place when no pill claims the replacement", () => {
+    const buttons = store();
+    buttons.addComposerPill(installation(), {
+      id: "plan",
+      workspaceId: "workspace",
+      agentId: "agent",
+      button: button(),
+    });
+    expect(replacesTasks(buttons.getSnapshot(), "host-a", "workspace", "agent")).toBe(false);
+  });
+
+  it("rejects a pill that claims an unknown replacement", () => {
+    const buttons = store();
+    expect(() =>
+      buttons.addComposerPill(installation(), {
+        id: "plan",
+        workspaceId: "workspace",
+        agentId: "agent",
+        replaces: "subagents" as unknown as "tasks",
+        button: button(),
+      }),
+    ).toThrow("Plugin composer pill cannot replace: subagents");
   });
 });

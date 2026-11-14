@@ -41,7 +41,7 @@ import {
 } from "../popover";
 import { SurfaceErrorBoundary } from "../surface-error-boundary";
 import { toPluginTheme } from "../theme";
-import { buttonMatches, type RegisteredPluginButton } from "./model";
+import { buttonMatches, replacesTasks, type RegisteredPluginButton } from "./model";
 import { pluginButtonStore } from "./store";
 import { resolvePluginPlatform } from "../platform";
 
@@ -531,6 +531,26 @@ export function useHasPluginComposerPills(
   agentId: string,
 ): boolean {
   return useButtons(serverId, workspaceId, agentId).length > 0;
+}
+
+/**
+ * Whether a plugin composer pill currently replaces the built-in Tasks track for this agent. Drives
+ * hiding the native pill; false when no enabled, visible pill claims `replaces: "tasks"`.
+ */
+export function usePluginReplacesTasks(
+  serverId: string,
+  workspaceId: string,
+  agentId: string,
+): boolean {
+  const entries = useSyncExternalStore(
+    pluginButtonStore.subscribe,
+    pluginButtonStore.getSnapshot,
+    pluginButtonStore.getSnapshot,
+  );
+  return useMemo(
+    () => replacesTasks(entries, serverId, workspaceId, agentId),
+    [entries, serverId, workspaceId, agentId],
+  );
 }
 
 export function PluginComposerPills({

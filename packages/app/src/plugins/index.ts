@@ -7,4 +7,5 @@ export {
   PluginComposerPills,
   PluginHeaderButtons,
   useHasPluginComposerPills,
+  usePluginReplacesTasks,
 } from "./buttons/view";

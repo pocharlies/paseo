@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { z } from "zod";
+import { DISTRIBUTION } from "@getpaseo/protocol/distribution";
 import { isRealpathInsideRoot } from "../../../utils/path.js";
 import { PASEO_CLI_PACKAGE, type NpmGlobalPaseoInstall } from "./npm-global-cli.js";
 
@@ -74,7 +75,9 @@ function globalNodeModulesPath(globalRootPath: string): string {
 }
 
 function resolveCurrentServerPackageRoot(): string | null {
-  return resolvePackageRootFrom(fileURLToPath(import.meta.url), "@getpaseo/server");
+  // The same configured package the global CLI inspection and installLatest resolve to,
+  // so the install-origin check agrees with what self-update installs.
+  return resolvePackageRootFrom(fileURLToPath(import.meta.url), DISTRIBUTION.npmServerPackage);
 }
 
 function resolvePackageRootFrom(startPath: string, packageName: string): string | null {

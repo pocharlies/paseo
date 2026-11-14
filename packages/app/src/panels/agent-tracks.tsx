@@ -39,6 +39,7 @@ export const AgentTracks = memo(function AgentTracks({
   archiveFinishedStatus,
   onArchiveFinished,
   hasPluginComposerPills,
+  replacesTasks,
 }: {
   serverId: string;
   workspaceId: string;
@@ -49,6 +50,7 @@ export const AgentTracks = memo(function AgentTracks({
   archiveFinishedStatus: ArchiveFinishedStatus;
   onArchiveFinished: () => void;
   hasPluginComposerPills: boolean;
+  replacesTasks: boolean;
 }): ReactElement | null {
   const { tabId } = usePaneContext();
   const hasWorkspaceDiffStat = useWorkspaceHasDiffStat(serverId, workspaceId);
@@ -118,7 +120,7 @@ export const AgentTracks = memo(function AgentTracks({
 
   return (
     <ComposerTrackBar>
-      <AgentTaskList tasks={tasks} />
+      {replacesTasks ? null : <AgentTaskList tasks={tasks} />}
       <SubagentsTrack
         serverId={serverId}
         rows={subagentRows}

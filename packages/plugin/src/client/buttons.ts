@@ -52,6 +52,15 @@ export interface PluginHeaderButtonContribution {
   button: PluginButton;
 }
 
+/** A built-in composer track a contributed pill takes over while it is visible and enabled. */
+export type PluginComposerReplacement = "tasks";
+
 export interface PluginComposerPillContribution extends PluginHeaderButtonContribution {
   agentId: string;
+  /**
+   * Hide the named built-in track for this agent while this pill is visible and enabled. Removing,
+   * disabling or hiding the pill restores it. The pill's own plugin name is never the trigger —
+   * only this field is.
+   */
+  replaces?: PluginComposerReplacement;
 }

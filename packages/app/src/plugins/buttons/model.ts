@@ -2,6 +2,7 @@ import type {
   PluginButtonBehavior,
   PluginButtonContext,
   PluginButtonRegistration,
+  PluginComposerReplacement,
   PluginHeaderButtonContribution,
   PluginComposerPillContribution,
 } from "@getpaseo/plugin/client";
@@ -22,6 +23,8 @@ export interface RegisteredPluginButton {
   placement: ButtonPlacement;
   context: PluginButtonContext;
   button: ResolvedPluginButton;
+  /** Built-in composer track this pill replaces while visible and enabled. Composer only. */
+  replaces?: PluginComposerReplacement;
   pending: boolean;
   open: boolean;
 }
@@ -35,6 +38,14 @@ function resolveAction(
   const item = behavior.items.find((entry) => entry.id === path[0]);
   if (!item || item.kind !== "item" || item.visible === false || item.disabled) return null;
   return resolveAction(item.behavior, path.slice(1));
+}
+
+function validateReplaces(
+  value: PluginComposerReplacement | undefined,
+): PluginComposerReplacement | undefined {
+  if (value === undefined) return undefined;
+  if (value !== "tasks") throw new Error(`Plugin composer pill cannot replace: ${String(value)}`);
+  return value;
 }
 
 export class PluginButtonStore {
@@ -68,11 +79,18 @@ export class PluginButtonStore {
     input: PluginComposerPillContribution,
   ): PluginButtonRegistration {
     if (!input.agentId.trim()) throw new Error("Plugin composer pill needs an agent");
-    return this.add(installation, input, "composer", {
-      context: "agent",
-      workspaceId: input.workspaceId.trim(),
-      agentId: input.agentId.trim(),
-    });
+    const replaces = validateReplaces(input.replaces);
+    return this.add(
+      installation,
+      input,
+      "composer",
+      {
+        context: "agent",
+        workspaceId: input.workspaceId.trim(),
+        agentId: input.agentId.trim(),
+      },
+      replaces,
+    );
   }
 
   private add(
@@ -80,6 +98,7 @@ export class PluginButtonStore {
     input: PluginHeaderButtonContribution,
     placement: ButtonPlacement,
     context: PluginButtonContext,
+    replaces?: PluginComposerReplacement,
   ): PluginButtonRegistration {
     const id = requireButtonId(input.id);
     if (!context.workspaceId.trim()) throw new Error("Plugin button needs a workspace");
@@ -104,6 +123,7 @@ export class PluginButtonStore {
         placement,
         context,
         button: initialButton,
+        replaces,
         pending: false,
         open: false,
       },
@@ -174,5 +194,24 @@ export function buttonMatches(
     entry.placement === "composer" &&
     entry.context.context === "agent" &&
     entry.context.agentId === agentId
+  );
+}
+
+/**
+ * Whether a contributed pill takes the built-in Tasks track away from this agent. Only a pill that
+ * matches the target and is visible and enabled counts, so removing, disabling or hiding it — or
+ * switching away from it — restores Tasks. The plugin's name is never the trigger.
+ */
+export function replacesTasks(
+  entries: readonly RegisteredPluginButton[],
+  serverId: string,
+  workspaceId: string,
+  agentId: string,
+): boolean {
+  return entries.some(
+    (entry) =>
+      entry.replaces === "tasks" &&
+      !entry.button.disabled &&
+      buttonMatches(entry, serverId, workspaceId, agentId),
   );
 }

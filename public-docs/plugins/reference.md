@@ -1824,6 +1824,11 @@ and returns the same registration. It targets one agent's composer track alongsi
 Subagents. Composer pills always show the icon and `label` (or `title` when `label` is omitted).
 They never show a chevron, including for menus and popovers.
 
+A pill can declare `replaces: "tasks"` alongside `agentId` to replace the built-in Tasks
+track for that agent on that host and workspace. Only a visible, enabled replacement
+hides Tasks. Removing, hiding, disabling or unloading the contribution restores the
+built-in track; this does not remove task data or history. Other plugins need no changes.
+
 ```tsx
 const pill = client.addComposerPill({
   id: "review",

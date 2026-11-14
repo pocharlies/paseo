@@ -1,9 +1,12 @@
 import { lstatSync } from "node:fs";
 import { getErrorMessage } from "@getpaseo/protocol/error-utils";
+import { DISTRIBUTION } from "@getpaseo/protocol/distribution";
 import { z } from "zod";
 import { execCommand } from "../../../utils/spawn.js";
 
-export const PASEO_CLI_PACKAGE = "@getpaseo/cli";
+// Both the global inspection and `installLatest` resolve through this one configured
+// package (and its dist-tag), so a build never inspects one package and installs another.
+export const PASEO_CLI_PACKAGE = DISTRIBUTION.npmCliPackage;
 
 const NPM_PROBE_TIMEOUT_MS = 10_000;
 const NPM_INSTALL_TIMEOUT_MS = 300_000;
@@ -145,7 +148,8 @@ export class DefaultNpmGlobalPaseoCli implements NpmGlobalPaseoCli {
 
   installLatest(options: NpmGlobalOptions = {}): Promise<CommandResult> {
     const prefixArgs = options.prefix ? ["--prefix", options.prefix] : [];
-    return this.runCommand("npm", ["install", "-g", `${PASEO_CLI_PACKAGE}@latest`, ...prefixArgs], {
+    const spec = `${PASEO_CLI_PACKAGE}@${DISTRIBUTION.npmCliDistTag}`;
+    return this.runCommand("npm", ["install", "-g", spec, ...prefixArgs], {
       timeout: NPM_INSTALL_TIMEOUT_MS,
       maxBuffer: NPM_MAX_BUFFER_BYTES,
     });

@@ -1,0 +1,36 @@
+name: Own distribution checks
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main, sc-5088-own-release]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: own-distribution-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  distribution:
+    if: github.repository == 'pocharlies-org/paseo'
+    runs-on: arc-k8s
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm run build:client
+      - run: npm run build:plugin
+      - run: npm run build:highlight
+      - run: npx vitest run scripts/set-distribution.test.mjs --bail=1
+      - run: npm exec --workspace=@getpaseo/protocol -- vitest run src/distribution.test.ts --bail=1
+      - run: npm exec --workspace=@getpaseo/app -- vitest run src/plugins/buttons/model.test.ts --bail=1
+      - run: npm run typecheck --workspace=@getpaseo/app
+      - run: npm run lint
+      - run: npm run format:check

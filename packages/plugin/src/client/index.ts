@@ -43,6 +43,7 @@ export type {
   PluginButtonMenuEntry,
   PluginButtonRegistration,
   PluginComposerPillContribution,
+  PluginComposerReplacement,
   PluginHeaderButtonContribution,
 } from "./buttons.js";
 export { usePaseo } from "./paseo-context.js";

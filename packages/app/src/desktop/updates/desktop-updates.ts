@@ -2,6 +2,7 @@ import { isElectronRuntime } from "@/desktop/host";
 import { invokeDesktopCommand } from "@/desktop/electron/invoke";
 import { isWeb } from "@/constants/platform";
 import { i18n } from "@/i18n/i18next";
+import { githubReleaseDownloadBaseUrl } from "@getpaseo/protocol/distribution";
 
 export interface DesktopAppUpdateCheckResult {
   hasUpdate: boolean;
@@ -37,8 +38,6 @@ export interface LocalDaemonVersionResult {
   version: string | null;
   error: string | null;
 }
-
-const RELEASE_DOWNLOAD_BASE_URL = "https://github.com/getpaseo/paseo/releases/download";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -194,7 +193,7 @@ export function buildMacAppleSiliconDownloadUrl(version: string | null | undefin
     return null;
   }
 
-  return `${RELEASE_DOWNLOAD_BASE_URL}/v${normalizedVersion}/Paseo-${normalizedVersion}-arm64.dmg`;
+  return `${githubReleaseDownloadBaseUrl()}/v${normalizedVersion}/Paseo-${normalizedVersion}-arm64.dmg`;
 }
 
 export function buildDaemonUpdateDiagnostics(result: LocalDaemonUpdateResult): string {
