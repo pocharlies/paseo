@@ -2430,6 +2430,7 @@ export const es: TranslationResources = {
         moveTabDown: "Mover pestaña hacia abajo",
         closePane: "Cerrar panel",
         newTerminal: "Nueva terminal",
+        terminalProfile: "Perfil de terminal",
         searchFiles: "Buscar archivos",
         toggleCommandCenter: "Alternar centro de comando",
         showKeyboardShortcuts: "Mostrar atajos de teclado",

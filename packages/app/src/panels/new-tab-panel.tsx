@@ -206,6 +206,14 @@ const NewTabPanel = memo(function NewTabPanel(): ReactElement {
         itemsById.get("terminal")?.launch({ kind: "replace", tabId });
         return true;
       }
+      if (action.id === "workspace.terminal.profile") {
+        const profileItem = Array.from(itemsById.values()).find((item) =>
+          item.id.startsWith("terminal-profile:"),
+        );
+        if (!profileItem) return false;
+        profileItem.launch({ kind: "replace", tabId });
+        return true;
+      }
       if (action.id === "workspace.browser.new" || action.id === "workspace.tab.target.browser") {
         itemsById.get("browser")?.launch({ kind: "replace", tabId });
         return true;
@@ -231,6 +239,7 @@ const NewTabPanel = memo(function NewTabPanel(): ReactElement {
     actions: [
       "workspace.agent.new",
       "workspace.terminal.new",
+      "workspace.terminal.profile",
       "workspace.browser.new",
       "workspace.tab.target.agent",
       "workspace.tab.target.browser",

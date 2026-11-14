@@ -2376,6 +2376,7 @@ export const ar: TranslationResources = {
         moveTabDown: "حرك علامة التبويب لأسفل",
         closePane: "إغلاق الجزء",
         newTerminal: "محطة جديدة",
+        terminalProfile: "ملف تعريف الطرفية",
         searchFiles: "البحث في الملفات",
         toggleCommandCenter: "تبديل مركز القيادة",
         showKeyboardShortcuts: "إظهار اختصارات لوحة المفاتيح",

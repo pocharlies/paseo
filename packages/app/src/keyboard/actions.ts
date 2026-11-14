@@ -48,6 +48,7 @@ export type KeyboardActionId =
   | "command-center.files"
   | "shortcuts.dialog.toggle"
   | "workspace.terminal.new"
+  | "workspace.terminal.profile"
   | "workspace.new"
   | "workspace.project.pick"
   | "worktree.new"

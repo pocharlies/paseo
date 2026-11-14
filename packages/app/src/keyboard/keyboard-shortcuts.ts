@@ -174,6 +174,7 @@ export const SHORTCUT_HELP_ROW_ORDER: Record<ShortcutSectionId, readonly string[
     "workspace-tab-new",
     "workspace-tab-target-agent",
     "workspace-terminal-new",
+    "workspace-terminal-profile",
     "workspace-tab-target-browser",
     "workspace-tab-target-changes",
     "workspace-tab-target-files",
@@ -233,6 +234,7 @@ const SHORTCUT_HELP_LABEL_KEYS: Record<string, string> = {
   "workspace-pane-move-tab-down": "settings.shortcuts.help.moveTabDown",
   "workspace-pane-close": "settings.shortcuts.help.closePane",
   "workspace-terminal-new": "settings.shortcuts.help.newTerminal",
+  "workspace-terminal-profile": "settings.shortcuts.help.terminalProfile",
   "search-files": "settings.shortcuts.help.searchFiles",
   "toggle-command-center": "settings.shortcuts.help.toggleCommandCenter",
   "show-shortcuts": "settings.shortcuts.help.showKeyboardShortcuts",
@@ -857,6 +859,33 @@ const SHORTCUT_BINDINGS: readonly ShortcutBinding[] = [
       id: "workspace-terminal-new",
       section: "tabs-panes",
       label: "New terminal",
+    },
+  },
+
+  // --- Terminal profile ---
+  // Launches the first configured terminal profile (the Claude CLI on our hosts).
+  // shortcut: only the first profile is reachable by keyboard; promote to
+  // per-profile actions if more than one is configured.
+  {
+    id: "workspace-terminal-profile-cmd-shift-c-mac",
+    action: "workspace.terminal.profile",
+    combo: "Cmd+Shift+C",
+    when: { mac: true, commandCenter: false },
+    help: {
+      id: "workspace-terminal-profile",
+      section: "tabs-panes",
+      label: "Terminal profile",
+    },
+  },
+  {
+    id: "workspace-terminal-profile-ctrl-shift-c-non-mac",
+    action: "workspace.terminal.profile",
+    combo: "Ctrl+Shift+C",
+    when: { mac: false, commandCenter: false, terminal: false },
+    help: {
+      id: "workspace-terminal-profile",
+      section: "tabs-panes",
+      label: "Terminal profile",
     },
   },
 

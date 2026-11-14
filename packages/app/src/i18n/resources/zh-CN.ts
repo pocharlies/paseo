@@ -2348,6 +2348,7 @@ export const zhCN: TranslationResources = {
         moveTabDown: "向下移动标签",
         closePane: "关闭窗格",
         newTerminal: "新建终端",
+        terminalProfile: "终端配置文件",
         searchFiles: "搜索文件",
         toggleCommandCenter: "切换命令中心",
         showKeyboardShortcuts: "显示键盘快捷键",

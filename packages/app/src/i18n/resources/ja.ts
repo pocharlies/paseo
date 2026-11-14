@@ -2397,6 +2397,7 @@ export const ja: TranslationResources = {
         moveTabDown: "タブを下に移動",
         closePane: "ペインを閉じる",
         newTerminal: "新しいターミナル",
+        terminalProfile: "ターミナルプロファイル",
         searchFiles: "ファイルを検索",
         toggleCommandCenter: "コマンドセンターを切り替え",
         showKeyboardShortcuts: "キーボードショートカットを表示",

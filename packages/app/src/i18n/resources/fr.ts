@@ -2430,6 +2430,7 @@ export const fr: TranslationResources = {
         moveTabDown: "Déplacer l’onglet vers le bas",
         closePane: "Fermer le panneau",
         newTerminal: "Nouveau terminal",
+        terminalProfile: "Profil de terminal",
         searchFiles: "Rechercher des fichiers",
         toggleCommandCenter: "Afficher/masquer la palette de commandes",
         showKeyboardShortcuts: "Afficher les raccourcis clavier",

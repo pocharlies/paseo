@@ -200,6 +200,8 @@ import { getIsElectron, isNative, isWeb } from "@/constants/platform";
 import { buildHostRootRoute, buildSettingsHostRoute } from "@/utils/host-routes";
 import { useWorkspaceTerminals } from "@/screens/workspace/terminals/use-workspace-terminals";
 import type { TerminalProfile } from "@getpaseo/protocol/messages";
+import { resolveTerminalProfiles } from "@getpaseo/protocol/terminal-profiles";
+import { useDaemonConfig } from "@/hooks/use-daemon-config";
 import {
   WorkspaceHeaderMenuDesktop,
   WorkspaceHeaderMenuMobile,
@@ -1021,6 +1023,7 @@ function WorkspaceScreenContent({
   const toggleFocusMode = usePanelStore((state) => state.toggleFocusMode);
 
   const normalizedServerId = useMemo(() => trimNonEmpty(decodeSegment(serverId)) ?? "", [serverId]);
+  const { config: daemonConfig } = useDaemonConfig(normalizedServerId);
 
   const normalizedWorkspaceId = useMemo(
     () => resolveWorkspaceRouteId({ routeWorkspaceId: workspaceId }) ?? "",
@@ -1856,6 +1859,17 @@ function WorkspaceScreenContent({
     [createTerminal],
   );
 
+  // ⇧⌘C: the first configured terminal profile (the Claude CLI on our hosts);
+  // a plain terminal when the host has none.
+  const handleCreateTerminalFromProfile = useStableEvent(() => {
+    const [profile] = resolveTerminalProfiles(daemonConfig?.terminalProfiles);
+    if (profile) {
+      handleCreateTerminalWithProfile(profile);
+    } else {
+      handleCreateTerminal();
+    }
+  });
+
   const handleCreateBrowserTab = useCallback(
     (input?: { paneId?: string }) => {
       if (!persistenceKey || !getIsElectron()) {
@@ -2594,6 +2608,9 @@ function WorkspaceScreenContent({
         case "workspace.terminal.new":
           handleCreateTerminal();
           return true;
+        case "workspace.terminal.profile":
+          handleCreateTerminalFromProfile();
+          return true;
         case "workspace.browser.new":
           handleCreateBrowserTab();
           return true;
@@ -2635,6 +2652,7 @@ function WorkspaceScreenContent({
       handleCreateBrowserTab,
       handleCreateNewTab,
       handleCreateTerminal,
+      handleCreateTerminalFromProfile,
       focusedPaneTabState.pane?.id,
       navigateToTabId,
       tabs,
@@ -2809,6 +2827,7 @@ function WorkspaceScreenContent({
       "workspace.tab.navigate-index",
       "workspace.tab.navigate-relative",
       "workspace.terminal.new",
+      "workspace.terminal.profile",
       "workspace.browser.new",
       "workspace.tab.menu.open",
     ] as const,

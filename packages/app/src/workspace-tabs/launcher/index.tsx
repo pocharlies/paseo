@@ -229,14 +229,22 @@ export function useWorkspaceTabLaunchCatalog(input: {
       groups.push({
         id: "terminal-profiles",
         label: t("workspace.tabs.actions.terminalProfilesMenu"),
-        items: profiles.map((profile: TerminalProfile) => ({
-          id: `terminal-profile:${profile.id}`,
-          label: profile.name,
-          terminalIconKey: getTerminalProfileIcon(profile),
-          disabled: launcher.terminalDisabled,
-          panelKind: "terminal",
-          launch: launchSelection({ kind: "terminal", profile }),
-        })),
+        items: profiles.map((profile: TerminalProfile, index: number) => {
+          const item: WorkspaceTabLaunchItem = {
+            id: `terminal-profile:${profile.id}`,
+            label: profile.name,
+            terminalIconKey: getTerminalProfileIcon(profile),
+            disabled: launcher.terminalDisabled,
+            panelKind: "terminal",
+            launch: launchSelection({ kind: "terminal", profile }),
+          };
+          // Only the first profile gets the ⇧⌘C shortcut; see the binding
+          // comment in keyboard-shortcuts.ts.
+          if (index === 0) {
+            item.shortcutActionId = "workspace-terminal-profile";
+          }
+          return item;
+        }),
         accessory: {
           id: "edit-terminal-profiles",
           label: t("workspace.tabs.actions.editTerminalProfiles"),
